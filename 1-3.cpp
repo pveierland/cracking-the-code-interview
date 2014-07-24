@@ -1,8 +1,6 @@
 #include <array>
-#include <cstring>
 #include <iostream>
 #include <limits>
-#include <utility>
 
 bool is_permutation(const std::string& a, const std::string& b)
 {
@@ -17,11 +15,7 @@ bool is_permutation(const std::string& a, const std::string& b)
 	
 	for (const unsigned char c : b)
 	{
-		if (lookup[c] > 0)
-		{
-			--lookup[c];
-		}
-		else
+		if (--lookup[c] < 0)
 		{
 			return false;
 		}

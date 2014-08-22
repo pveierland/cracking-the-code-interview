@@ -1,21 +1,10 @@
+#include "bitmanip.h"
+
 #include "gmock/gmock.h"
 using namespace ::testing;
 
 #include <iostream>
 #include <type_traits>
-
-// Log2 from: http://stackoverflow.com/a/18233009
-template<std::size_t N, std::size_t P = 0>
-constexpr typename std::enable_if<(N <= 1), std::size_t>::type Log2()
-{
-  return P;
-}
-
-template<std::size_t N, std::size_t P = 0>
-constexpr typename std::enable_if<!(N <= 1), std::size_t>::type Log2()
-{
-  return Log2<N / 2, P + 1>();
-}
 
 template <typename ValueType>
 typename std::enable_if<std::is_integral<ValueType>::value, ValueType>::type
@@ -26,11 +15,9 @@ get_binary_greater(const ValueType value)
     throw std::runtime_error("input cannot be zero");
   }
 
-  constexpr std::size_t highest_bit =
-    Log2<std::numeric_limits<ValueType>::max() &
-       ~(std::numeric_limits<ValueType>::max() >> 1)>();
-
-  for (std::size_t i = 0, first = 0; i != highest_bit; ++i)
+  for (std::size_t i = 0, first = 0;
+       i != bitmanip::get_num_positive_bits<ValueType>();
+       ++i)
   {
     const std::size_t bit_mask = (1 << i);
     const bool        bit_set  = value & bit_mask;
@@ -57,11 +44,9 @@ get_binary_lesser(const ValueType value)
     throw std::runtime_error("input cannot be zero");
   }
 
-  constexpr int highest_bit =
-    Log2<std::numeric_limits<ValueType>::max() &
-       ~(std::numeric_limits<ValueType>::max() >> 1)>();
-
-  for (std::size_t i = 0, zero_pos = 0; i != highest_bit; ++i)
+  for (std::size_t i = 0, zero_pos = 0;
+       i != bitmanip::get_num_positive_bits<ValueType>();
+       ++i)
   {
     const bool bit_set = value & (1 << i);
 
@@ -85,34 +70,13 @@ get_binary_lesser(const ValueType value)
 
 template <typename ValueType>
 typename std::enable_if<std::is_integral<ValueType>::value, ValueType>::type
-get_num_set_bits(const ValueType value)
-{
-  constexpr std::size_t highest_bit =
-    Log2<std::numeric_limits<ValueType>::max() &
-       ~(std::numeric_limits<ValueType>::max() >> 1)>();
-
-  std::size_t count = 0;
-
-  for (std::size_t i = 0; i != highest_bit; ++i)
-  {
-    if (value & (1 << i))
-    {
-      ++count;
-    }
-  }
-
-  return count;
-}
-
-template <typename ValueType>
-typename std::enable_if<std::is_integral<ValueType>::value, ValueType>::type
 get_binary_greater_naive(const ValueType value)
 {
-  const std::size_t num_set_bits = get_num_set_bits(value);
+  const std::size_t num_set_bits = bitmanip::get_num_set_bits(value);
 
   for (ValueType i = value + 1; i != std::numeric_limits<ValueType>::max(); ++i)
   {
-    if (get_num_set_bits(i) == num_set_bits)
+    if (bitmanip::get_num_set_bits(i) == num_set_bits)
     {
       return i;
     }
@@ -125,11 +89,11 @@ template <typename ValueType>
 typename std::enable_if<std::is_integral<ValueType>::value, ValueType>::type
 get_binary_lesser_naive(const ValueType value)
 {
-  const std::size_t num_set_bits = get_num_set_bits(value);
+  const std::size_t num_set_bits = bitmanip::get_num_set_bits(value);
 
   for (ValueType i = value - 1; i != 0; --i)
   {
-    if (get_num_set_bits(i) == num_set_bits)
+    if (bitmanip::get_num_set_bits(i) == num_set_bits)
     {
       return i;
     }
@@ -163,11 +127,7 @@ TEST(get_binary_lesser, zero)
 
 TEST(get_binary_lesser, all_ones)
 {
-  constexpr int highest_bit =
-    Log2<std::numeric_limits<int>::max() &
-       ~(std::numeric_limits<int>::max() >> 1)>();
-
-  for (int i = 1; i != highest_bit; ++i)
+  for (int i = 1; i != bitmanip::get_num_positive_bits<int>(); ++i)
   {
     ASSERT_THROW(get_binary_lesser((1 << i) - 1), std::runtime_error);
   }

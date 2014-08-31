@@ -1,15 +1,13 @@
-#include "bitmanip.h"
+#include "bit.hpp"
 
 #include <gmock/gmock.h>
 using namespace ::testing;
 
-#include <type_traits>
-
-template <typename ValueType>
-typename std::enable_if<std::is_integral<ValueType>::value, ValueType>::type
-get_hamming_distance(const ValueType a, const ValueType b)
+template <typename T>
+inline constexpr
+T get_hamming_distance(const T a, const T b)
 {
-	return bitmanip::get_num_set_bits(a ^ b);
+	return bit::count(a ^ b);
 }
 
 TEST(get_hamming_distance, validate)

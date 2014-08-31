@@ -1,9 +1,8 @@
-#include "bitmanip.h"
+#include "bit.hpp"
 
 #include "gmock/gmock.h"
 using namespace ::testing;
 
-#include <iostream>
 #include <type_traits>
 
 template <typename ValueType>
@@ -16,7 +15,7 @@ get_binary_greater(const ValueType value)
   }
 
   for (std::size_t i = 0, first = 0;
-       i != bitmanip::get_num_positive_bits<ValueType>();
+       i != bit::width<ValueType>();
        ++i)
   {
     const std::size_t bit_mask = (1 << i);
@@ -45,7 +44,7 @@ get_binary_lesser(const ValueType value)
   }
 
   for (std::size_t i = 0, zero_pos = 0;
-       i != bitmanip::get_num_positive_bits<ValueType>();
+       i != bit::width<ValueType>();
        ++i)
   {
     const bool bit_set = value & (1 << i);
@@ -72,11 +71,11 @@ template <typename ValueType>
 typename std::enable_if<std::is_integral<ValueType>::value, ValueType>::type
 get_binary_greater_naive(const ValueType value)
 {
-  const std::size_t num_set_bits = bitmanip::get_num_set_bits(value);
+  const std::size_t num_set_bits = bit::count(value);
 
   for (ValueType i = value + 1; i != std::numeric_limits<ValueType>::max(); ++i)
   {
-    if (bitmanip::get_num_set_bits(i) == num_set_bits)
+    if (bit::count(i) == num_set_bits)
     {
       return i;
     }
@@ -89,11 +88,11 @@ template <typename ValueType>
 typename std::enable_if<std::is_integral<ValueType>::value, ValueType>::type
 get_binary_lesser_naive(const ValueType value)
 {
-  const std::size_t num_set_bits = bitmanip::get_num_set_bits(value);
+  const std::size_t num_set_bits = bit::count(value);
 
   for (ValueType i = value - 1; i != 0; --i)
   {
-    if (bitmanip::get_num_set_bits(i) == num_set_bits)
+    if (bit::count(i) == num_set_bits)
     {
       return i;
     }
@@ -127,7 +126,7 @@ TEST(get_binary_lesser, zero)
 
 TEST(get_binary_lesser, all_ones)
 {
-  for (int i = 1; i != bitmanip::get_num_positive_bits<int>(); ++i)
+  for (int i = 1; i != bit::width<int>(); ++i)
   {
     ASSERT_THROW(get_binary_lesser((1 << i) - 1), std::runtime_error);
   }

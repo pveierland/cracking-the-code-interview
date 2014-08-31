@@ -28,7 +28,7 @@ std::string get_binary_representation(double value)
       output += '0';
     }
 
-    if (iteration_count != max_iterations)
+    if (iteration_count != max_iterations - 2)
     {
       iteration_count++;
     }
@@ -41,7 +41,7 @@ std::string get_binary_representation(double value)
   return output;
 }
 
-TEST(print_binary_representation, values)
+TEST(print_binary_representation, validate)
 {
   EXPECT_THAT(get_binary_representation(0.750), Eq("0.11"));
   EXPECT_THAT(get_binary_representation(0.500), Eq("0.1"));

@@ -1,18 +1,19 @@
+#include "bit.hpp"
+
 #include "gmock/gmock.h"
 using namespace ::testing;
 
-#include <cstdint>
-
-std::uint32_t insert_bit_pattern(const std::uint32_t N,
-                                 const std::uint32_t M,
-                                 const int           i,
-                                 const int           j)
+template <typename T>
+inline constexpr
+T insert_bit_pattern(const T   N,
+                     const T   M,
+                     const int i,
+                     const int j)
 {
-  const std::uint32_t mask = ((1 << ((j - i) + 1)) - 1) << i;
-  return (N & ~mask) | ((M << i) & mask);
+  return (N & ~bit::mask<T>(i, j)) | ((M << i) & bit::mask<T>(i, j));
 }
 
-TEST(insert_bit_pattern, what)
+TEST(insert_bit_pattern, validate)
 {
   ASSERT_EQ(insert_bit_pattern(0b10000000000, 0b10011, 2, 6), 0b10001001100);
 }

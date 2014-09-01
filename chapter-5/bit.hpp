@@ -10,26 +10,24 @@ namespace bit
 {
   template <typename T>
   inline constexpr
-  T log2_(const T remainder, T exponent) noexcept
+  T width(T value) noexcept
   {
-    return remainder <= T{1}
-      ? T{0}
-      : T{1} + log2_(remainder / T{2}, exponent + T{1});
-  }
+    unsigned int n = 0;
 
-  template <typename T>
-  inline constexpr
-  T log2(const T value) noexcept
-  {
-    return log2_(value, T{0});
+    while (value != 0)
+    {
+      value >>= 1;
+      ++n;
+    }
+
+    return n;
   }
 
   template <typename T>
   inline constexpr
   T width() noexcept
   {
-    return log2(std::numeric_limits<T>::max() &
-              ~(std::numeric_limits<T>::max() >> 1));
+    return width(std::numeric_limits<T>::max());
   }
 
   template <typename T>
